@@ -12,7 +12,7 @@ export const FullPost = () => {
   const [isLoading, setisLoading] = useState(true)
   const { id } = useParams()
 
-  console.log(data)
+
   useEffect(() => {
     axios.get(`/posts/${id}`).then((res) => {
       setData(res.data)
