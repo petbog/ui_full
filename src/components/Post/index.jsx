@@ -25,6 +25,8 @@ export const Post = ({
   isLoading,
   isEditable,
 }) => {
+
+
   if (isLoading) {
     return <PostSkeleton />;
   }

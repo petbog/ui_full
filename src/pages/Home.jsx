@@ -8,11 +8,13 @@ import { TagsBlock } from '../components/TagsBlock';
 import { CommentsBlock } from '../components/CommentsBlock';
 import { useDispatch, useSelector } from 'react-redux'
 import { fetchPosts, fetchTags } from '../redux/Slice/postsSlice'
+import { selectIsAuth } from '../redux/Slice/authSlice';
 
 
 export const Home = () => {
   const dispatch = useDispatch()
   const { posts, tags } = useSelector(state => state.posts)
+  const { auth } = useSelector(selectIsAuth)
 
   const isPostsLoading = posts.status === 'loading'
   const isTagsLoading = tags.status === 'loading'
@@ -43,7 +45,7 @@ export const Home = () => {
                 viewsCount={obj.viewsCount}
                 commentsCount={3}
                 tags={obj.tags}
-                isEditable
+                isEditable={auth?._id === obj.user._id}
               />
             ))}
         </Grid>
