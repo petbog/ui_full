@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import TextField from '@mui/material/TextField';
 import Paper from '@mui/material/Paper';
 import Button from '@mui/material/Button';
@@ -8,10 +8,11 @@ import 'easymde/dist/easymde.min.css';
 import styles from './AddPost.module.scss';
 import { useSelector } from 'react-redux';
 import { selectIsAuth } from '../../redux/Slice/authSlice';
-import { useNavigate, Navigate } from 'react-router-dom';
+import { useNavigate, Navigate, useParams } from 'react-router-dom';
 import axios from '../../axios'
 
 export const AddPost = () => {
+  const { id } = useParams()
   const navigate = useNavigate()
   const { auth } = useSelector(selectIsAuth)
   const [text, setText] = React.useState('');
@@ -20,6 +21,7 @@ export const AddPost = () => {
   const [imageUrl, setImageUrl] = useState('')
   const [isLoading, setLoading] = useState(false)
   const inputFilleRef = useRef()
+  const isEditing = Boolean(id)
 
   const handleChangeFile = async (event) => {
     try {
@@ -48,19 +50,32 @@ export const AddPost = () => {
 
       const fields = {
         title,
-        tags: tags.split(','),
+        tags,
         text,
         imageUrl
       }
 
-      const { data } = await axios.post('/posts', fields)
-      const id = data._id
-      navigate(`/posts/${id}`)
+      const { data } = isEditing ? await axios.patch(`/posts/${id}`, fields) : await axios.post('/posts', fields)
+      const _id = isEditing ? id : data._id
+      navigate(`/posts/${_id}`)
     } catch (error) {
       console.warn(error)
       alert('Произошла ошибка загрузки статьи!')
     }
   }
+  useEffect(() => {
+    if (id) {
+      axios.get(`/posts/${id}`).then(({ data }) => {
+        setTitle(data.title);
+        setText(data.text);
+        setTags(data.tags.join(','));
+        setImageUrl(data.imageUrl);
+      }).catch(err => {
+        console.warn(err)
+        alert('Ошибка при получение статьи')
+      })
+    }
+  }, [])
 
   const options = React.useMemo(
     () => ({
@@ -108,7 +123,7 @@ export const AddPost = () => {
       <SimpleMDE className={styles.editor} value={text} onChange={onChange} options={options} />
       <div className={styles.buttons}>
         <Button onClick={onSubmit} size="large" variant="contained">
-          Опубликовать
+          {isEditing ? 'Сохранить' : 'Опубликовать'}
         </Button>
         <a href="/">
           <Button size="large">Отмена</Button>

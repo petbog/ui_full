@@ -45,7 +45,8 @@ export const Home = () => {
                 viewsCount={obj.viewsCount}
                 commentsCount={3}
                 tags={obj.tags}
-                isEditable={auth?._id === obj.user._id}
+                isEditable
+                // isEditable={auth?._id === obj.user._id}
               />
             ))}
         </Grid>
